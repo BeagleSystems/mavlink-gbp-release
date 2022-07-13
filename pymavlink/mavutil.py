@@ -1429,7 +1429,11 @@ class mavmmaplog(mavlogfile):
     def rewind(self):
         '''rewind to start of log'''
         self._rewind()
-        
+
+    def close(self):
+        super(mavmmaplog, self).close()
+        self.data_map.close()
+
     def init_arrays(self, progress_callback=None):
         '''initialise arrays for fast recv_match()'''
 
@@ -1496,7 +1500,11 @@ class mavmmaplog(mavlogfile):
             if mtype in self.instance_offsets:
                 # populate the messages array with a new instance. This assumes we can get the instance
                 # as a single byte integer
-                self.f.seek(ofs + data_ofs + self.instance_offsets[mtype])
+                instance_field_ofs = ofs + data_ofs + self.instance_offsets[mtype]
+                if instance_field_ofs >= self.data_len:
+                    # truncated log
+                    break
+                self.f.seek(instance_field_ofs)
                 b = self.f.read(1)
                 instance, = struct.unpack('b', b)
                 mname = self.id_to_name[mtype]
@@ -1946,6 +1954,9 @@ mode_mapping_acm = {
     22 : 'FLOWHOLD',
     23 : 'FOLLOW',
     24 : 'ZIGZAG',
+    25 : 'SYSTEMID',
+    26 : 'AUTOROTATE',
+    27 : 'AUTO_RTL',
 }
 
 mode_mapping_rover = {

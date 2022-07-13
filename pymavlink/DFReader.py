@@ -135,7 +135,7 @@ def to_string(s):
         return s2
     except Exception:
         pass
-    # so its a nasty one. Let's grab as many characters as we can
+    # so it's a nasty one. Let's grab as many characters as we can
     r = ''
     while s != '':
         try:
@@ -208,13 +208,17 @@ class DFMessage(object):
         return self.fmt.name
 
     def __str__(self):
+        is_py3 = sys.version_info >= (3,0)
         ret = "%s {" % self.fmt.name
         col_count = 0
         for c in self.fmt.columns:
             val = self.__getattr__(c)
             if isinstance(val, float) and math.isnan(val):
                 # quiet nans have more non-zero values:
-                noisy_nan = "\x7f\xf8\x00\x00\x00\x00\x00\x00"
+                if is_py3:
+                    noisy_nan = bytearray([0x7f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+                else:
+                    noisy_nan = "\x7f\xf8\x00\x00\x00\x00\x00\x00"
                 if struct.pack(">d", val) != noisy_nan:
                     val = "qnan"
             ret += "%s : %s, " % (c, val)
@@ -939,7 +943,7 @@ class DFReader_binary(DFReader):
                 # we can have garbage at the end of an APM2 log
                 return None
             # we should also cope with other corruption; logs
-            # transfered via DataFlash_MAVLink may have blocks of 0s
+            # transferred via DataFlash_MAVLink may have blocks of 0s
             # in them, for example
             print("Failed to parse %s/%s with len %u (remaining %u)" %
                   (fmt.name, fmt.msg_struct, len(body), self.remaining),
@@ -1015,7 +1019,7 @@ class DFReader_text(DFReader):
         else:
             self.data_map = mmap.mmap(self.filehandle.fileno(), self.data_len, mmap.MAP_PRIVATE, mmap.PROT_READ)
         self.offset = 0
-        self.delimeter = ", "
+        self.delimiter = ", "
 
         self.formats = {
             'FMT': DFFormat(0x80,
@@ -1039,7 +1043,7 @@ class DFReader_text(DFReader):
         if self.offset == -1:
             self.offset = self.data_map.find(b'FMT,')
             if self.offset != -1:
-                self.delimeter = ","
+                self.delimiter = ","
         self.type_list = None
 
     def rewind(self):
@@ -1128,7 +1132,7 @@ class DFReader_text(DFReader):
             s = self.data_map[self.offset:endline].rstrip()
             if sys.version_info.major >= 3:
                 s = s.decode('utf-8')
-            elements = s.split(self.delimeter)
+            elements = s.split(self.delimiter)
             self.offset = endline+1
             if len(elements) >= 2:
                 # this_line is good
@@ -1163,7 +1167,7 @@ class DFReader_text(DFReader):
             # name, len, format, headings
             ftype = int(elements[0])
             fname = elements[2]
-            if self.delimeter == ",":
+            if self.delimiter == ",":
                 elements = elements[0:4] + [",".join(elements[4:])]
             columns = elements[4]
             if fname == 'FMT' and columns == 'Type,Length,Name,Format':
