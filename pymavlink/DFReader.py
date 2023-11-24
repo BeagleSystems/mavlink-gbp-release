@@ -113,11 +113,21 @@ class DFFormat(object):
         instance_idx = unit_ids.find('#')
         if instance_idx != -1:
             self.instance_field = self.columns[instance_idx]
+            # work out offset and length of instance field in message
+            pre_fmt = self.format[:instance_idx]
+            pre_sfmt = ""
+            for c in pre_fmt:
+                (s, mul, type) = FORMAT_TO_STRUCT[c]
+                pre_sfmt += s
+            self.instance_ofs = struct.calcsize(pre_sfmt)
+            (ifmt,) = self.format[instance_idx]
+            self.instance_len = struct.calcsize(ifmt)
+
 
     def set_mult_ids(self, mult_ids):
         '''set mult IDs string from FMTU'''
         self.mult_ids = mult_ids
-            
+
     def __str__(self):
         return ("DFFormat(%s,%s,%s,%s)" %
                 (self.type, self.name, self.format, self.columns))
@@ -125,37 +135,21 @@ class DFFormat(object):
 # Swiped into mavgen_python.py
 def to_string(s):
     '''desperate attempt to convert a string regardless of what garbage we get'''
-    try:
-        return s.decode("utf-8")
-    except Exception as e:
-        pass
-    try:
-        s2 = s.encode('utf-8', 'ignore')
-        x = u"%s" % s2
-        return s2
-    except Exception:
-        pass
-    # so it's a nasty one. Let's grab as many characters as we can
-    r = ''
-    while s != '':
-        try:
-            r2 = r + s[0]
-            s = s[1:]
-            r2 = r2.encode('ascii', 'ignore')
-            x = u"%s" % r2
-            r = r2
-        except Exception:
-            break
-    return r + '_XXX'
-    
-def null_term(str):
+    if isinstance(s, str):
+        return s
+    if sys.version_info[0] == 2:
+        # In python2 we want to return unicode for passed in unicode
+        return s
+    return s.decode(errors="backslashreplace")
+
+def null_term(string):
     '''null terminate a string'''
-    if isinstance(str, bytes):
-        str = to_string(str)
-    idx = str.find("\0")
+    if isinstance(string, bytes):
+        string = to_string(string)
+    idx = string.find("\0")
     if idx != -1:
-        str = str[:idx]
-    return str
+        string = string[:idx]
+    return string
 
 
 class DFMessage(object):
@@ -180,8 +174,15 @@ class DFMessage(object):
             i = self.fmt.colhash[field]
         except Exception:
             raise AttributeError(field)
+        if self.fmt.msg_fmts[i] == 'Z' and self.fmt.name == 'FILE':
+            # special case for FILE contens as bytes
+            return self._elements[i]
         if isinstance(self._elements[i], bytes):
-            v = self._elements[i].decode("utf-8")
+            try:
+                v = self._elements[i].decode("utf-8")
+            except UnicodeDecodeError:
+                # try western europe
+                v = self._elements[i].decode("ISO-8859-1")
         else:
             v = self._elements[i]
         if self.fmt.format[i] == 'a':
@@ -221,7 +222,14 @@ class DFMessage(object):
                     noisy_nan = "\x7f\xf8\x00\x00\x00\x00\x00\x00"
                 if struct.pack(">d", val) != noisy_nan:
                     val = "qnan"
-            ret += "%s : %s, " % (c, val)
+
+            if is_py3:
+                ret += "%s : %s, " % (c, val)
+            else:
+                try:
+                    ret += "%s : %s, " % (c, val)
+                except UnicodeDecodeError:
+                    ret += "%s : %s, " % (c, to_string(val))
             col_count += 1
         if col_count != 0:
             ret = ret[:-2]
@@ -242,11 +250,16 @@ class DFMessage(object):
             if is_py2:
                 if isinstance(v,unicode): # NOQA
                     v = str(v)
+                elif isinstance(v, array.array):
+                    v = v.tostring()
             else:
                 if isinstance(v,str):
-                    v = bytes(v,'ascii')
-            if isinstance(v, array.array):
-                v = v.tostring()
+                    try:
+                        v = bytes(v,'ascii')
+                    except UnicodeEncodeError:
+                        v = v.encode()
+                elif isinstance(v, array.array):
+                    v = v.tobytes()
             if mul is not None:
                 v /= mul
                 v = int(round(v))
@@ -464,7 +477,11 @@ class DFReader(object):
         self.verbose = False
         self.params = {}
         self._flightmodes = None
-        self.messages = {}
+        self.messages = {
+            'MAV': self,
+            '__MAV__': self,  # avoids conflicts with messages actually called "MAV"
+        }
+        self.percent = 0
 
     def _rewind(self):
         '''reset state on rewind'''
@@ -473,7 +490,10 @@ class DFReader(object):
         # need their messages to disappear to.  If they want their own
         # copy they can copy.copy it!
         self.messages.clear()
-        self.messages['MAV'] = self
+        self.messages = {
+            'MAV': self,
+            '__MAV__': self,  # avoids conflicts with messages actually called "MAV"
+        }
         if self._flightmodes is not None and len(self._flightmodes) > 0:
             self.flightmode = self._flightmodes[0][0]
         else:
@@ -620,6 +640,20 @@ class DFReader(object):
                 self.mav_type = mavutil.mavlink.MAV_TYPE_ANTENNA_TRACKER
             elif m.Message.find("ArduSub") != -1:
                 self.mav_type = mavutil.mavlink.MAV_TYPE_SUBMARINE
+            elif m.Message.find("Blimp") != -1:
+                self.mav_type = mavutil.mavlink.MAV_TYPE_AIRSHIP
+        if type == 'VER' and hasattr(m,'BU'):
+            build_types = { 1: mavutil.mavlink.MAV_TYPE_GROUND_ROVER,
+                            2: mavutil.mavlink.MAV_TYPE_QUADROTOR,
+                            3: mavutil.mavlink.MAV_TYPE_FIXED_WING,
+                            4: mavutil.mavlink.MAV_TYPE_ANTENNA_TRACKER,
+                            7: mavutil.mavlink.MAV_TYPE_SUBMARINE,
+                            13: mavutil.mavlink.MAV_TYPE_HELICOPTER,
+                            12: mavutil.mavlink.MAV_TYPE_AIRSHIP,
+                            }
+            mavtype = build_types.get(m.BU,None)
+            if mavtype is not None:
+                self.mav_type = mavtype
         if type == 'MODE':
             if hasattr(m,'Mode') and isinstance(m.Mode, str):
                 self.flightmode = m.Mode.upper()
@@ -635,6 +669,10 @@ class DFReader(object):
             self.flightmode = mavutil.mode_string_px4(m.MainState)
         if type == 'PARM' and getattr(m, 'Name', None) is not None:
             self.params[m.Name] = m.Value
+            if hasattr(m,'Default') and not math.isnan(m.Default):
+                if not hasattr(self,'param_defaults'):
+                    self.param_defaults = {}
+                self.param_defaults[m.Name] = m.Default
         self._set_time(m)
 
     def recv_match(self, condition=None, type=None, blocking=False):
@@ -694,6 +732,11 @@ class DFReader(object):
 
         self._rewind()
         return self._flightmodes
+    
+    def close(self):
+        '''close the log file'''
+        self.filehandle.close()
+    
 
 class DFReader_binary(DFReader):
     '''parse a binary dataflash file'''
@@ -748,6 +791,7 @@ class DFReader_binary(DFReader):
         self._count = 0
         self.name_to_id = {}
         self.id_to_name = {}
+        type_instances = {}
         for i in range(256):
             self.offsets.append([])
             self.counts.append(0)
@@ -783,7 +827,16 @@ class DFReader_binary(DFReader):
                 fmt = self.formats[mtype]
                 lengths[mtype] = fmt.len
             elif self.formats[mtype].instance_field is not None:
-                self._parse_next()
+                fmt = self.formats[mtype]
+                # see if we've has this instance value before
+                idata = self.data_map[ofs+3+fmt.instance_ofs:ofs+3+fmt.instance_ofs+fmt.instance_len]
+                if not mtype in type_instances:
+                    type_instances[mtype] = set()
+                if not idata in type_instances[mtype]:
+                    # its a new one, need to parse it so we have the complete set of instances
+                    type_instances[mtype].add(idata)
+                    self.offset = ofs
+                    self._parse_next()
 
             self.counts[mtype] += 1
             mlen = lengths[mtype]
@@ -860,7 +913,7 @@ class DFReader_binary(DFReader):
         if self.type_nums is None:
             # always add some key msg types so we can track flightmode, params etc
             type = type.copy()
-            type.update(set(['MODE','MSG','PARM','STAT']))
+            type.update(set(['MODE','MSG','PARM','STAT','ORGN','VER']))
             self.indexes = []
             self.type_nums = []
             for t in type:
@@ -996,6 +1049,38 @@ class DFReader_binary(DFReader):
 
         return m
 
+    def find_unused_format(self):
+        '''find an unused format code'''
+        for i in range(254, 1, -1):
+            if not i in self.formats:
+                return i
+        return None
+
+    def add_format(self, fmt):
+        '''add a new format'''
+        new_type = self.find_unused_format()
+        if new_type is None:
+            return None
+        fmt.type = new_type
+        self.formats[new_type] = fmt
+        return fmt
+
+    def make_msgbuf(self, fmt, values):
+        '''make a message buffer from a list of values'''
+        ret = struct.pack("BBB", 0xA3, 0x95, fmt.type)
+        ret += struct.pack(fmt.msg_struct, *values)
+        return ret
+
+    def make_format_msgbuf(self, fmt):
+        '''make a message buffer for a FMT message'''
+        fmt_fmt = self.formats[0x80]
+        ret = struct.pack("BBB", 0xA3, 0x95, 0x80)
+        ret += struct.pack(fmt_fmt.msg_struct, *[fmt.type,struct.calcsize(fmt.msg_struct)+3,
+                                                 fmt.name.encode('ascii'),
+                                                 fmt.format.encode('ascii'),
+                                                 ','.join(fmt.columns).encode('ascii')])
+        return ret
+    
 
 def DFReader_is_text_log(filename):
     '''return True if a file appears to be a valid text log'''
@@ -1078,7 +1163,7 @@ class DFReader_text(DFReader):
             if mtype == "FMTU":
                 self.offset = ofs
                 self._parse_next()
-                
+
             ofs = self.data_map.find(b"\n", ofs)
             if ofs == -1:
                 break
@@ -1098,7 +1183,7 @@ class DFReader_text(DFReader):
         if self.type_list is None:
             # always add some key msg types so we can track flightmode, params etc
             self.type_list = type.copy()
-            self.type_list.update(set(['MODE','MSG','PARM','STAT']))
+            self.type_list.update(set(['MODE','MSG','PARM','STAT','ORGN','VER']))
             self.type_list = list(self.type_list)
             self.indexes = []
             self.type_nums = []

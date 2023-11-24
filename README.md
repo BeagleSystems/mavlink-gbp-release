@@ -13,3 +13,18 @@ Key Links:
 * [Discussion/Support](https://mavlink.io/en/#support) (Slack)
 * [Contributing](https://mavlink.io/en/contributing/contributing.html)
 * [License](https://mavlink.io/en/#license)
+
+Re-build C library with
+
+```
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/ardupilotmega.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/common.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/development.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/icarous.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/minimal.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/python_array_test.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/standard.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/test.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/ualberta.xml
+python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=generated/include/mavlink/v2.0 `pwd`/message_definitions/v1.0/uAvionix.xml
+```
