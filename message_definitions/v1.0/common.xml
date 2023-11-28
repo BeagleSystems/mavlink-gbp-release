@@ -816,6 +816,183 @@
       <entry value="4" name="COMP_METADATA_TYPE_EVENTS">
         <description>Meta data for the events interface.</description>
       </entry>
+      <entry value="5" name="COMP_METADATA_TYPE_ACTUATORS">
+        <description>Meta data for actuator configuration (motors, servos and vehicle geometry) and testing.</description>
+      </entry>
+    </enum>
+    <enum name="ACTUATOR_CONFIGURATION">
+      <description>Actuator configuration, used to change a setting on an actuator. Component information metadata can be used to know which outputs support which commands.</description>
+      <entry value="0" name="ACTUATOR_CONFIGURATION_NONE">
+        <description>Do nothing.</description>
+      </entry>
+      <entry value="1" name="ACTUATOR_CONFIGURATION_BEEP">
+        <description>Command the actuator to beep now.</description>
+      </entry>
+      <entry value="2" name="ACTUATOR_CONFIGURATION_3D_MODE_ON">
+        <description>Permanently set the actuator (ESC) to 3D mode (reversible thrust).</description>
+      </entry>
+      <entry value="3" name="ACTUATOR_CONFIGURATION_3D_MODE_OFF">
+        <description>Permanently set the actuator (ESC) to non 3D mode (non-reversible thrust).</description>
+      </entry>
+      <entry value="4" name="ACTUATOR_CONFIGURATION_SPIN_DIRECTION1">
+        <description>Permanently set the actuator (ESC) to spin direction 1 (which can be clockwise or counter-clockwise).</description>
+      </entry>
+      <entry value="5" name="ACTUATOR_CONFIGURATION_SPIN_DIRECTION2">
+        <description>Permanently set the actuator (ESC) to spin direction 2 (opposite of direction 1).</description>
+      </entry>
+    </enum>
+    <enum name="ACTUATOR_OUTPUT_FUNCTION">
+      <description>Actuator output function. Values greater or equal to 1000 are autopilot-specific.</description>
+      <entry value="0" name="ACTUATOR_OUTPUT_FUNCTION_NONE">
+        <description>No function (disabled).</description>
+      </entry>
+      <entry value="1" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR1">
+        <description>Motor 1</description>
+      </entry>
+      <entry value="2" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR2">
+        <description>Motor 2</description>
+      </entry>
+      <entry value="3" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR3">
+        <description>Motor 3</description>
+      </entry>
+      <entry value="4" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR4">
+        <description>Motor 4</description>
+      </entry>
+      <entry value="5" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR5">
+        <description>Motor 5</description>
+      </entry>
+      <entry value="6" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR6">
+        <description>Motor 6</description>
+      </entry>
+      <entry value="7" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR7">
+        <description>Motor 7</description>
+      </entry>
+      <entry value="8" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR8">
+        <description>Motor 8</description>
+      </entry>
+      <entry value="9" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR9">
+        <description>Motor 9</description>
+      </entry>
+      <entry value="10" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR10">
+        <description>Motor 10</description>
+      </entry>
+      <entry value="11" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR11">
+        <description>Motor 11</description>
+      </entry>
+      <entry value="12" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR12">
+        <description>Motor 12</description>
+      </entry>
+      <entry value="13" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR13">
+        <description>Motor 13</description>
+      </entry>
+      <entry value="14" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR14">
+        <description>Motor 14</description>
+      </entry>
+      <entry value="15" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR15">
+        <description>Motor 15</description>
+      </entry>
+      <entry value="16" name="ACTUATOR_OUTPUT_FUNCTION_MOTOR16">
+        <description>Motor 16</description>
+      </entry>
+      <entry value="33" name="ACTUATOR_OUTPUT_FUNCTION_SERVO1">
+        <description>Servo 1</description>
+      </entry>
+      <entry value="34" name="ACTUATOR_OUTPUT_FUNCTION_SERVO2">
+        <description>Servo 2</description>
+      </entry>
+      <entry value="35" name="ACTUATOR_OUTPUT_FUNCTION_SERVO3">
+        <description>Servo 3</description>
+      </entry>
+      <entry value="36" name="ACTUATOR_OUTPUT_FUNCTION_SERVO4">
+        <description>Servo 4</description>
+      </entry>
+      <entry value="37" name="ACTUATOR_OUTPUT_FUNCTION_SERVO5">
+        <description>Servo 5</description>
+      </entry>
+      <entry value="38" name="ACTUATOR_OUTPUT_FUNCTION_SERVO6">
+        <description>Servo 6</description>
+      </entry>
+      <entry value="39" name="ACTUATOR_OUTPUT_FUNCTION_SERVO7">
+        <description>Servo 7</description>
+      </entry>
+      <entry value="40" name="ACTUATOR_OUTPUT_FUNCTION_SERVO8">
+        <description>Servo 8</description>
+      </entry>
+      <entry value="41" name="ACTUATOR_OUTPUT_FUNCTION_SERVO9">
+        <description>Servo 9</description>
+      </entry>
+      <entry value="42" name="ACTUATOR_OUTPUT_FUNCTION_SERVO10">
+        <description>Servo 10</description>
+      </entry>
+      <entry value="43" name="ACTUATOR_OUTPUT_FUNCTION_SERVO11">
+        <description>Servo 11</description>
+      </entry>
+      <entry value="44" name="ACTUATOR_OUTPUT_FUNCTION_SERVO12">
+        <description>Servo 12</description>
+      </entry>
+      <entry value="45" name="ACTUATOR_OUTPUT_FUNCTION_SERVO13">
+        <description>Servo 13</description>
+      </entry>
+      <entry value="46" name="ACTUATOR_OUTPUT_FUNCTION_SERVO14">
+        <description>Servo 14</description>
+      </entry>
+      <entry value="47" name="ACTUATOR_OUTPUT_FUNCTION_SERVO15">
+        <description>Servo 15</description>
+      </entry>
+      <entry value="48" name="ACTUATOR_OUTPUT_FUNCTION_SERVO16">
+        <description>Servo 16</description>
+      </entry>
+    </enum>
+    <enum name="AUTOTUNE_AXIS" bitmask="true">
+      <description>Enable axes that will be tuned via autotuning. Used in MAV_CMD_DO_AUTOTUNE_ENABLE.</description>
+      <entry value="0" name="AUTOTUNE_AXIS_DEFAULT">
+        <description>Flight stack tunes axis according to its default settings.</description>
+      </entry>
+      <entry value="1" name="AUTOTUNE_AXIS_ROLL">
+        <description>Autotune roll axis.</description>
+      </entry>
+      <entry value="2" name="AUTOTUNE_AXIS_PITCH">
+        <description>Autotune pitch axis.</description>
+      </entry>
+      <entry value="4" name="AUTOTUNE_AXIS_YAW">
+        <description>Autotune yaw axis.</description>
+      </entry>
+    </enum>
+    <enum name="PREFLIGHT_STORAGE_PARAMETER_ACTION">
+      <description>
+        Actions for reading/writing parameters between persistent and volatile storage when using MAV_CMD_PREFLIGHT_STORAGE.
+        (Commonly parameters are loaded from persistent storage (flash/EEPROM) into volatile storage (RAM) on startup and written back when they are changed.)
+      </description>
+      <entry value="0" name="PARAM_READ_PERSISTENT">
+        <description>Read all parameters from persistent storage. Replaces values in volatile storage.</description>
+      </entry>
+      <entry value="1" name="PARAM_WRITE_PERSISTENT">
+        <description>Write all parameter values to persistent storage (flash/EEPROM)</description>
+      </entry>
+      <entry value="2" name="PARAM_RESET_CONFIG_DEFAULT">
+        <description>Reset all user configurable parameters to their default value (including airframe selection, sensor calibration data, safety settings, and so on). Does not reset values that contain operation counters and vehicle computed statistics.</description>
+      </entry>
+      <entry value="3" name="PARAM_RESET_SENSOR_DEFAULT">
+        <description>Reset only sensor calibration parameters to factory defaults (or firmware default if not available)</description>
+      </entry>
+      <entry value="4" name="PARAM_RESET_ALL_DEFAULT">
+        <description>Reset all parameters, including operation counters, to default values</description>
+      </entry>
+    </enum>
+    <enum name="PREFLIGHT_STORAGE_MISSION_ACTION">
+      <description>
+        Actions for reading and writing plan information (mission, rally points, geofence) between persistent and volatile storage when using MAV_CMD_PREFLIGHT_STORAGE.
+        (Commonly missions are loaded from persistent storage (flash/EEPROM) into volatile storage (RAM) on startup and written back when they are changed.)
+      </description>
+      <entry value="0" name="MISSION_READ_PERSISTENT">
+        <description>Read current mission data from persistent storage</description>
+      </entry>
+      <entry value="1" name="MISSION_WRITE_PERSISTENT">
+        <description>Write current mission data to persistent storage</description>
+      </entry>
+      <entry value="2" name="MISSION_RESET_DEFAULT">
+        <description>Erase all mission data stored on the vehicle (both persistent and volatile storage)</description>
+      </entry>
     </enum>
     <!-- The MAV_CMD enum entries describe either: -->
     <!--  * the data payload of mission items (as used in the MISSION_ITEM_INT message) -->
@@ -893,15 +1070,15 @@
         <param index="6" label="Longitude">Longitude</param>
         <param index="7" label="Altitude" units="m">Altitude</param>
       </entry>
-      <entry value="23" name="MAV_CMD_NAV_LAND_LOCAL" hasLocation="true" isDestination="true">
-        <description>Land at local position (local frame only)</description>
-        <param index="1" label="Target" minValue="0" increment="1">Landing target number (if available)</param>
-        <param index="2" label="Offset" units="m" minValue="0">Maximum accepted offset from desired landing position - computed magnitude from spherical coordinates: d = sqrt(x^2 + y^2 + z^2), which gives the maximum accepted distance between the desired landing position and the position where the vehicle is about to land</param>
-        <param index="3" label="Descend Rate" units="m/s">Landing descend rate</param>
-        <param index="4" label="Yaw" units="rad">Desired yaw angle</param>
-        <param index="5" label="Y Position" units="m">Y-axis position</param>
-        <param index="6" label="X Position" units="m">X-axis position</param>
-        <param index="7" label="Z Position" units="m">Z-axis / ground level position</param>
+      <entry value="23" name="MAV_CMD_NAV_PRECLAND" hasLocation="true" isDestination="true">
+        <description>Land at location.</description>
+        <param index="1" label="Abort Alt" units="m">Minimum target altitude if landing is aborted (0 = undefined/use system default).</param>
+        <param index="2" label="Land Mode" enum="PRECISION_LAND_MODE">Precision land mode.</param>
+        <param index="3">Empty.</param>
+        <param index="4" label="Yaw Angle" units="deg">Desired yaw angle. NaN to use the current system yaw heading mode (e.g. yaw towards next waypoint, yaw to home, etc.).</param>
+        <param index="5" label="Latitude">Latitude.</param>
+        <param index="6" label="Longitude">Longitude.</param>
+        <param index="7" label="Altitude" units="m">Landing altitude (ground level in current frame).</param>
       </entry>
       <entry value="24" name="MAV_CMD_NAV_TAKEOFF_LOCAL" hasLocation="true" isDestination="true">
         <description>Takeoff from local position (local frame only)</description>
@@ -1629,6 +1806,26 @@
         <description>start running a mission</description>
         <param index="1" label="First Item" minValue="0" increment="1">first_item: the first mission item to run</param>
         <param index="2" label="Last Item" minValue="0" increment="1">last_item:  the last mission item to run (after this item is run, the mission ends)</param>
+      </entry>
+      <entry value="310" name="MAV_CMD_ACTUATOR_TEST" hasLocation="false" isDestination="false">
+        <description>Actuator testing command. This is similar to MAV_CMD_DO_MOTOR_TEST but operates on the level of output functions, i.e. it is possible to test Motor1 independent from which output it is configured on. Autopilots typically refuse this command while armed.</description>
+        <param index="1" label="Value" minValue="-1" maxValue="1">Output value: 1 means maximum positive output, 0 to center servos or minimum motor thrust (expected to spin), -1 for maximum negative (if not supported by the motors, i.e. motor is not reversible, smaller than 0 maps to NaN). And NaN maps to disarmed (stop the motors).</param>
+        <param index="2" label="Timeout" units="s" minValue="0" maxValue="3">Timeout after which the test command expires and the output is restored to the previous value. A timeout has to be set for safety reasons. A timeout of 0 means to restore the previous value immediately.</param>
+        <param index="3" reserved="true" default="0"/>
+        <param index="4" reserved="true" default="0"/>
+        <param index="5" label="Output Function" enum="ACTUATOR_OUTPUT_FUNCTION">Actuator Output function</param>
+        <param index="6" reserved="true" default="0"/>
+        <param index="7" reserved="true" default="0"/>
+      </entry>
+      <entry value="311" name="MAV_CMD_CONFIGURE_ACTUATOR" hasLocation="false" isDestination="false">
+        <description>Actuator configuration command.</description>
+        <param index="1" label="Configuration" enum="ACTUATOR_CONFIGURATION">Actuator configuration action</param>
+        <param index="2" reserved="true" default="0"/>
+        <param index="3" reserved="true" default="0"/>
+        <param index="4" reserved="true" default="0"/>
+        <param index="5" label="Output Function" enum="ACTUATOR_OUTPUT_FUNCTION">Actuator Output function</param>
+        <param index="6" reserved="true" default="0"/>
+        <param index="7" reserved="true" default="0"/>
       </entry>
       <entry value="400" name="MAV_CMD_COMPONENT_ARM_DISARM" hasLocation="false" isDestination="false">
         <description>Arms / Disarms a component</description>
@@ -4976,9 +5173,15 @@
       <field type="uint16_t" name="buttons">A bitfield corresponding to the joystick buttons' 0-15 current state, 1 for pressed, 0 for released. The lowest bit corresponds to Button 1.</field>
       <extensions/>
       <field type="uint16_t" name="buttons2">A bitfield corresponding to the joystick buttons' 16-31 current state, 1 for pressed, 0 for released. The lowest bit corresponds to Button 16.</field>
-      <field type="uint8_t" name="enabled_extensions">Set bits to 1 to indicate which of the following extension fields contain valid data: bit 0: pitch, bit 1: roll.</field>
+      <field type="uint8_t" name="enabled_extensions">Set bits to 1 to indicate which of the following extension fields contain valid data: bit 0: pitch, bit 1: roll, bit 2: aux1, bit 3: aux2, bit 4: aux3, bit 5: aux4, bit 6: aux5, bit 7: aux6</field>
       <field type="int16_t" name="s">Pitch-only-axis, normalized to the range [-1000,1000]. Generally corresponds to pitch on vehicles with additional degrees of freedom. Valid if bit 0 of enabled_extensions field is set. Set to 0 if invalid.</field>
       <field type="int16_t" name="t">Roll-only-axis, normalized to the range [-1000,1000]. Generally corresponds to roll on vehicles with additional degrees of freedom. Valid if bit 1 of enabled_extensions field is set. Set to 0 if invalid.</field>
+      <field type="int16_t" name="aux1">Aux continuous input field 1. Normalized in the range [-1000,1000]. Purpose defined by recipient. Valid data if bit 2 of enabled_extensions field is set. 0 if bit 2 is unset.</field>
+      <field type="int16_t" name="aux2">Aux continuous input field 2. Normalized in the range [-1000,1000]. Purpose defined by recipient. Valid data if bit 3 of enabled_extensions field is set. 0 if bit 3 is unset.</field>
+      <field type="int16_t" name="aux3">Aux continuous input field 3. Normalized in the range [-1000,1000]. Purpose defined by recipient. Valid data if bit 4 of enabled_extensions field is set. 0 if bit 4 is unset.</field>
+      <field type="int16_t" name="aux4">Aux continuous input field 4. Normalized in the range [-1000,1000]. Purpose defined by recipient. Valid data if bit 5 of enabled_extensions field is set. 0 if bit 5 is unset.</field>
+      <field type="int16_t" name="aux5">Aux continuous input field 5. Normalized in the range [-1000,1000]. Purpose defined by recipient. Valid data if bit 6 of enabled_extensions field is set. 0 if bit 6 is unset.</field>
+      <field type="int16_t" name="aux6">Aux continuous input field 6. Normalized in the range [-1000,1000]. Purpose defined by recipient. Valid data if bit 7 of enabled_extensions field is set. 0 if bit 7 is unset.</field>
     </message>
     <message id="70" name="RC_CHANNELS_OVERRIDE">
       <description>The RAW values of the RC channels sent to the MAV to override info received from the RC radio. The standard PPM modulation is as follows: 1000 microseconds: 0%, 2000 microseconds: 100%. Individual receivers/transmitters might violate this specification.  Note carefully the semantic differences between the first 8 channels and the subsequent channels</description>
